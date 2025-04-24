@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LeadTalk UI</title>
+  <link rel="icon" type="image/svg+xml" href="./vite.svg" />
+</head>
+
+<body class="bg-gray-50 text-gray-800 font-sans">
+  <div class="p-4 max-w-6xl mx-auto">
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end mb-4">
+      <input id="buscaContato" type="text" placeholder="🔍 Pesquise um contato"
+        class="border border-gray-300 rounded p-2 w-full" />
+      <textarea id="mensagemTexto" placeholder="Mensagem personalizada (use {{nome}})" rows="1"
+        class="border border-gray-300 rounded p-2 w-full resize-none"></textarea>
+      <input type="number" id="intervalo" placeholder="Intervalo (segundos)" value="10" min="1"
+        class="border border-gray-300 rounded p-2 w-full" />
+      <button id="btnEnviar" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">📨
+        Enviar Mensagem</button>
+    </div>
+
+    <div class="text-center mb-4">
+      <button id="btnVerLog" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">📄 Ver
+        Log</button>
+    </div>
+
+    <pre id="saidaEnvio" class="bg-black text-green-400 p-4 rounded max-h-64 overflow-y-auto"></pre>
+
+    <ul id="listaContatos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mt-6">
+      <!-- Contatos carregados aqui -->
+    </ul>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>

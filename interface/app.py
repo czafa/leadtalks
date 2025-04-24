@@ -1,180 +1,133 @@
-# interface/app.py – Backend principal com Flask, responsável por renderizar a interface,
-# gerar o arquivo de envio e executar o script sender.js com subprocess
+# interface/app.py
+from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
+import subprocess
+import os, json, re
+from pathlib import Path
 
-import subprocess                       # Para executar o script Node.js externamente
-from flask import Flask, render_template, request, jsonify
-import os, json, re                    # Para manipulação de caminhos, arquivos e expressões regulares
-from pathlib import Path               # Para manipulação segura de caminhos
+# === Configuração base ===
+BASE_DIR = Path(__file__).resolve().parent.parent
+WHATSAPP_CORE_DIR = BASE_DIR / "whatsapp-core"
+DATA_DIR = WHATSAPP_CORE_DIR / "data"
+VITE_DIST_DIR = BASE_DIR / "ui" / "dist"
 
-# Inicializa o app Flask e define os diretórios onde estão templates e arquivos estáticos
-app = Flask(__name__, static_folder="static", template_folder="templates")
+app = Flask(__name__, static_folder=str(VITE_DIST_DIR), template_folder=str(VITE_DIST_DIR))
+CORS(app)
 
-# Define o diretório base do projeto, subindo um nível (..)
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-
-# Caminho para a pasta do core do WhatsApp onde estão os scripts e dados
-WHATSAPP_CORE_DIR = os.path.join(BASE_DIR, 'whatsapp-core')
-
-# Caminho para os dados (contatos, grupos, membros)
-DATA_DIR = os.path.join(WHATSAPP_CORE_DIR, 'data')
-
-# -----------------------------------------
-# Função auxiliar para carregar JSONs
-# -----------------------------------------
-def load_json(filename):
-    path = os.path.join(DATA_DIR, filename)
-    if os.path.exists(path):
-        with open(path, 'r', encoding='utf-8') as file:
-            return json.load(file)
+# === Utilitário para carregar arquivos JSON ===
+def load_json(nome_arquivo):
+    caminho = DATA_DIR / nome_arquivo
+    if caminho.exists():
+        with open(caminho, 'r', encoding='utf-8') as f:
+            return json.load(f)
     return []
 
-# -----------------------------------------
-# Rota principal - renderiza a interface com contatos e grupos
-# -----------------------------------------
-@app.route('/')
-def index():
-    contatos = load_json('contatos.json')
-    grupos = load_json('grupos.json')
-    membros_grupos = load_json('membros-grupos.json')
+# === Rotas frontend Vite ===
+@app.route("/")
+def serve_index():
+    return send_from_directory(VITE_DIST_DIR, "index.html")
 
-    # Cria mapas de fácil acesso por número e jid
+@app.route("/<path:path>")
+def serve_static(path):
+    return send_from_directory(VITE_DIST_DIR, path)
+
+@app.route("/assets/<path:filename>")
+def serve_assets(filename):
+    return send_from_directory(VITE_DIST_DIR / "assets", filename)
+
+@app.route("/vite.svg")
+def serve_vite_svg():
+    return send_from_directory(VITE_DIST_DIR, "vite.svg")
+
+# === API: Contatos ===
+@app.route("/api/contatos")
+def api_contatos():
+    return jsonify(load_json("contatos.json"))
+
+# === API: Grupos com membros formatados ===
+@app.route("/api/grupos")
+def api_grupos():
+    contatos = load_json("contatos.json")
+    grupos = load_json("grupos.json")
+    membros_grupos = load_json("membros-grupos.json")
+
     contatos_por_numero = {c['numero']: c['nome'] for c in contatos}
     grupos_por_jid = {g['jid']: g['nome'] for g in grupos}
 
-    # Constrói estrutura de membros por grupo com nome formatado
-    membros_por_nome_grupo = {}
+    resultado = {}
     for jid, membros in membros_grupos.items():
         nome_grupo = grupos_por_jid.get(jid, jid)
-        membros_com_nomes = []
-        for m in membros:
-            raw = m.get('numero')
-            numero = re.sub(r'@.*', '', raw)  # remove @s.whatsapp.net
-            nome = contatos_por_numero.get(numero, '')
-            membros_com_nomes.append({
-                'numero': numero,
-                'nome': nome or numero
-            })
-        membros_por_nome_grupo[nome_grupo] = membros_com_nomes
+        resultado[nome_grupo] = [
+            {
+                "numero": re.sub(r"@.*", "", m.get("numero")),
+                "nome": contatos_por_numero.get(re.sub(r"@.*", "", m.get("numero")), re.sub(r"@.*", "", m.get("numero")))
+            }
+            for m in membros
+        ]
+    return jsonify(resultado)
 
-    # Renderiza o HTML com os dados carregados
-    return render_template('index.html',
-                           contatos=contatos,
-                           grupos=grupos,
-                           membros_grupos=membros_por_nome_grupo)
-
-# -----------------------------------------
-# Rota auxiliar - retorna lista de contatos em JSON
-# -----------------------------------------
-@app.route('/api/contatos')
-def api_contatos():
-    return jsonify(load_json('contatos.json'))
-
-# -----------------------------------------
-# Rota POST que gera o queue.json e executa o sender.js
-# -----------------------------------------
-@app.route('/api/enviar', methods=['POST'])
-def enviar_mensagem():
-    data = request.get_json()
-
-    # Extrai dados do JSON enviado pelo frontend
-    numeros = data.get("numeros", [])
-    mensagem = data.get("mensagem", "")
-    intervalo = data.get("intervaloSegundos", 10)
-
-    # Validação
-    if not numeros or not mensagem:
-        return jsonify({"erro": "Mensagem ou lista de números está vazia."}), 400
-
+# === API: Enviar mensagem ===
+@app.route("/api/enviar", methods=["POST"])
+def api_enviar():
     try:
-        # Prepara os nomes dos contatos
-        contatos = load_json('contatos.json')
-        contatos_map = {c['numero']: c['nome'] for c in contatos}
+        data = request.get_json()
+        numeros = data.get("numeros", [])
+        mensagem = data.get("mensagem", "").strip()
+        intervalo = int(data.get("intervaloSegundos", 10))
 
-        contatos_formatados = []
-        for numero in numeros:
-            nome = contatos_map.get(numero, numero)
-            contatos_formatados.append({
-                "numero": numero,
-                "nome": nome
-            })
+        if not numeros or not mensagem:
+            return jsonify({"erro": "Mensagem ou números ausentes."}), 400
 
-        # Gera o arquivo queue.json que será lido pelo sender.js
+        contatos = load_json("contatos.json")
+        mapa_nomes = {c["numero"]: c["nome"] for c in contatos}
+        contatos_formatados = [{"numero": n, "nome": mapa_nomes.get(n, n)} for n in numeros]
+
         fila = {
             "mensagem": mensagem,
-            "intervaloSegundos": int(intervalo),
+            "intervaloSegundos": intervalo,
             "contatos": contatos_formatados
         }
 
-        queue_path = os.path.join(WHATSAPP_CORE_DIR, 'queue.json')
-        with open(queue_path, 'w', encoding='utf-8') as f:
+        with open(WHATSAPP_CORE_DIR / "queue.json", "w", encoding="utf-8") as f:
             json.dump(fila, f, ensure_ascii=False, indent=2)
 
-        # Verifica se o sender.js existe
-        script_path = os.path.join(WHATSAPP_CORE_DIR, 'sender.js')
-        if not os.path.exists(script_path):
-            return jsonify({"erro": "Arquivo sender.js não encontrado."}), 500
+        script_path = WHATSAPP_CORE_DIR / "sender.js"
+        if not script_path.exists():
+            return jsonify({"erro": "sender.js não encontrado."}), 500
 
-        # Executa o sender.js com subprocess e limita tempo a 3 minutos
-        env = os.environ.copy()
         resultado = subprocess.run(
-            ["node", script_path],
+            ["node", str(script_path)],
             capture_output=True,
             text=True,
             cwd=WHATSAPP_CORE_DIR,
-            env=env,
             timeout=180
         )
 
-        # Log de erros e saída
+        print("📤 STDOUT:", resultado.stdout)
         if resultado.stderr:
             print("❌ STDERR:", resultado.stderr)
-        print("📤 STDOUT:", resultado.stdout)
 
-        return jsonify({
-            "status": "ok",
-            "saida": resultado.stdout.strip()
-        })
+        return jsonify({"status": "ok", "saida": resultado.stdout.strip()})
 
-    # Timeout específico
     except subprocess.TimeoutExpired:
-        return jsonify({
-            "erro": "Timeout ao executar sender.js",
-            "status": "timeout"
-        }), 504
-
-    # Qualquer outro erro
+        return jsonify({"erro": "Tempo limite excedido", "status": "timeout"}), 504
     except Exception as e:
-        return jsonify({
-            "erro": str(e),
-            "status": "error"
-        }), 500
+        return jsonify({"erro": str(e), "status": "erro"}), 500
 
-# -----------------------------------------
-# Rota para exibir o conteúdo do arquivo de log
-# -----------------------------------------
+# === API: Visualizar log ===
 @app.route("/log")
 def ver_log():
-    # Caminho absoluto até o envio.log
-    log_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'whatsapp-core', 'logs', 'envio.log'))
-
-    if not os.path.exists(log_path):
-        return jsonify({"log": "📝 Nenhum log encontrado ainda."})
-
+    log_path = WHATSAPP_CORE_DIR / "logs" / "envio.log"
+    if not log_path.exists():
+        return jsonify({"log": "📝 Nenhum log encontrado."})
     try:
-        # Lê as últimas 100 linhas
-        with open(log_path, 'r', encoding='utf-8') as file:
-            linhas = file.readlines()
-            ultimas = linhas[-100:]
-            return jsonify({"log": "".join(ultimas)})
+        with open(log_path, 'r', encoding='utf-8') as f:
+            linhas = f.readlines()[-100:]
+            return jsonify({"log": "".join(linhas)})
     except Exception as e:
         return jsonify({"log": f"❌ Erro ao ler o log: {str(e)}"})
 
-# -----------------------------------------
-# Início da aplicação
-# -----------------------------------------
-if __name__ == '__main__':
-    # Garante que a pasta de dados existe
-    Path(DATA_DIR).mkdir(parents=True, exist_ok=True)
-
-    # Inicia o servidor Flask em modo debug
+# === Execução local ===
+if __name__ == "__main__":
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
     app.run(debug=True)

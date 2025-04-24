@@ -1,39 +1,27 @@
 # ⚙️ Ambientes e dependências
 node_modules/
 venv/
-.env
+dist/
+.env*
 
-# 🔧 Configurações específicas de IDEs
+# 🔧 IDEs e arquivos locais
 .vscode/
 .idea/
 *.code-workspace
-
-# 💾 Arquivos de execução local
-*.log
-*.pyc
-*.pyo
 __pycache__/
+*.py[cod]
+*.log
 .DS_Store
 
-# 📁 Arquivos gerados automaticamente
-*.sqlite
-*.db
+# 📦 Gerados e sensíveis
+auth/
+data/
+logs/
 queue.json
-auth/*
-data/*
-logs/*
-
-# 🧪 Arquivos de build (caso use Tailwind + Vite futuramente)
-dist/
-.build/
-.cache/
-
-# 🔐 Segurança
 secrets.*
 token.*
-.env.*
 
-# 📸 Capturas ou arquivos temporários
+# 📸 Arquivos temporários e capturas
 *.png
 *.jpg
 *.jpeg
