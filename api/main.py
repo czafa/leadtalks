@@ -2,6 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from routes import qr
 import os
 
 from api.routes import contatos, enviar, log, grupos, membros_grupos  # Importações absolutas
@@ -22,6 +23,7 @@ app.include_router(enviar.router)
 app.include_router(log.router)
 app.include_router(grupos.router)
 app.include_router(membros_grupos.router)
+app.include_router(qr.router)
 
 # 🧱 Serve frontend buildado do Vite
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
