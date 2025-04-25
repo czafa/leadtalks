@@ -1,0 +1,40 @@
+.
+├── Readme.md
+├── api
+│   ├── __pycache__
+│   ├── main.py
+│   ├── routes
+│   └── utils.py
+├── estrutura.txt
+├── requirements.txt
+├── ui
+│   ├── dist
+│   ├── index.html
+│   ├── node_modules
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── postcss.config.js
+│   ├── public
+│   ├── src
+│   ├── tailwind.config.js
+│   └── vite.config.mjs
+├── venv
+│   ├── bin
+│   ├── include
+│   ├── lib
+│   ├── lib64 -> lib
+│   └── pyvenv.cfg
+└── whatsapp-core
+    ├── auth
+    ├── auth.js
+    ├── data
+    ├── leadtalks.js
+    ├── logs
+    ├── node_modules
+    ├── package-lock.json
+    ├── package.json
+    ├── queue.json
+    ├── sender.js
+    └── ws.sock.ws.readyState
+
+19 directories, 19 files

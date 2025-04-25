@@ -1,6 +1,8 @@
-import { configurarEventosUI, carregarContatos } from "./ui.js";
+import "./style.css";
+import { configurarEventosUI, carregarContatos, carregarGrupos } from "./ui.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   configurarEventosUI(); // Inicia eventos dos botões
-  carregarContatos(); // Carrega os contatos no início
+  carregarContatos();
+  carregarGrupos(); // Carrega os contatos no início
 });

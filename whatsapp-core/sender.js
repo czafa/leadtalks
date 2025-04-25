@@ -19,7 +19,16 @@ fs.mkdirSync(path.join(__dirname, "logs"), { recursive: true });
 
 // Utilitário para log
 function log(msg) {
-  const timestamp = new Date().toISOString();
+  const timestamp = new Intl.DateTimeFormat("pt-BR", {
+    timeZone: "America/Sao_Paulo",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  }).format(new Date());
+
   const linha = `[${timestamp}] ${msg}`;
   console.log(linha);
   fs.appendFileSync(logPath, linha + "\n");
@@ -55,6 +64,7 @@ async function enviarMensagens() {
     process.exit(1);
   }
 
+  log("");
   log("🔄 Iniciando conexão com WhatsApp...");
   const { state, saveCreds } = await useMultiFileAuthState(authPath);
   const sock = makeWASocket({
