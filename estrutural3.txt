@@ -1,0 +1,92 @@
+.
+├── Readme.md
+├── api
+│   ├── __pycache__
+│   │   ├── main.cpython-312.pyc
+│   │   └── utils.cpython-312.pyc
+│   ├── main.py
+│   ├── routes
+│   │   ├── __pycache__
+│   │   │   ├── contatos.cpython-312.pyc
+│   │   │   ├── enviar.cpython-312.pyc
+│   │   │   ├── grupos.cpython-312.pyc
+│   │   │   ├── log.cpython-312.pyc
+│   │   │   ├── membros_grupos.cpython-312.pyc
+│   │   │   └── qr.cpython-312.pyc
+│   │   ├── contatos.py
+│   │   ├── enviar.py
+│   │   ├── grupos.py
+│   │   ├── log.py
+│   │   ├── membros_grupos.py
+│   │   └── qr.py
+│   └── utils.py
+├── estrutura.txt
+├── estrutural3.txt
+├── requirements.txt
+├── ui
+│   ├── dist
+│   │   ├── assets
+│   │   │   ├── browser-BP6iqTsF.js
+│   │   │   ├── index-BZzLOGHL.js
+│   │   │   ├── login-DvIBluzg.js
+│   │   │   ├── main-Cm8DU4gE.js
+│   │   │   ├── qr-BX-9duf2.js
+│   │   │   ├── recover-Bh1O2ftz.js
+│   │   │   ├── register-7TaZ8nKH.js
+│   │   │   ├── style-CSG8Xxqm.css
+│   │   │   └── style-DYY7mR88.js
+│   │   ├── index.html
+│   │   ├── login.html
+│   │   ├── public
+│   │   │   ├── index.html
+│   │   │   ├── login.html
+│   │   │   ├── qr.html
+│   │   │   ├── recover.html
+│   │   │   └── register.html
+│   │   ├── qr.html
+│   │   ├── recover.html
+│   │   └── register.html
+│   ├── node_modules
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── postcss.config.js
+│   ├── public
+│   │   ├── index.html
+│   │   ├── login.html
+│   │   ├── qr.html
+│   │   ├── recover.html
+│   │   └── register.html
+│   ├── src
+│   │   ├── api.js
+│   │   ├── auth
+│   │   │   ├── login.js
+│   │   │   ├── qr.js
+│   │   │   ├── recover.js
+│   │   │   └── register.js
+│   │   ├── main.js
+│   │   ├── style.css
+│   │   ├── ui.js
+│   │   └── utils.js
+│   ├── tailwind.config.js
+│   └── vite.config.js
+├── venv
+└── whatsapp-core
+    ├── auth
+    ├── auth.js
+    ├── data
+    │   ├── contatos.json
+    │   ├── grupos.json
+    │   ├── membros-grupos.json
+    │   └── store.json
+    ├── leadtalks.js
+    ├── logs
+    │   └── envio.log
+    ├── node_modules
+    ├── package-lock.json
+    ├── package.json
+    ├── queue.json
+    ├── sender.js
+    ├── temp
+    └── ws.sock.ws.readyState
+
+538 directories, 1806 files

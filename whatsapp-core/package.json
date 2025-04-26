@@ -12,7 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "@hapi/boom": "^10.0.1",
+    "@supabase/supabase-js": "^2.49.4",
     "@whiskeysockets/baileys": "^6.5.0",
+    "dotenv": "^16.5.0",
     "qrcode-terminal": "^0.12.0"
   }
 }

@@ -1,8 +1,14 @@
 import "./style.css";
-import { configurarEventosUI, carregarContatos, carregarGrupos } from "./ui.js";
+import { navegar } from "./router.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-  configurarEventosUI(); // Inicia eventos dos botões
-  carregarContatos();
-  carregarGrupos(); // Carrega os contatos no início
+  if (!location.hash || location.hash === "#" || location.hash === "#/") {
+    window.location.replace("#/login");
+  } else {
+    navegar(location.hash);
+  }
+});
+
+window.addEventListener("hashchange", () => {
+  navegar(location.hash);
 });

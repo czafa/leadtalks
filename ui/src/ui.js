@@ -1,6 +1,6 @@
 // src/ui.js
-import { enviarMensagem, buscarLog } from "./api.js";
-import { getNumerosSelecionados } from "./utils.js";
+import { enviarMensagem, buscarLog } from "./utils/api.js";
+import { getNumerosSelecionados } from "./utils/utils.js";
 
 export function configurarEventosUI() {
   const btnEnviar = document.querySelector("#btnEnviar");

@@ -27,3 +27,9 @@ token.*
 *.jpeg
 *.webp
 *.zip
+
+# Ignorar chaves SSH e arquivos sensíveis
+*.key
+*.pem
+ssh-key-*
+/whatsapp-core/ssh-key-*

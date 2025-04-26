@@ -2,10 +2,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from routes import qr
+from fastapi.responses import FileResponse
 import os
 
-from api.routes import contatos, enviar, log, grupos, membros_grupos  # Importações absolutas
+from api.routes import contatos, enviar, log, grupos, membros_grupos, qr  # Importações absolutas
 
 app = FastAPI(title="LeadTalk API")
 
@@ -18,18 +18,21 @@ app.add_middleware(
 )
 
 # ✅ Inclusão das rotas organizadas
-app.include_router(contatos.router)
-app.include_router(enviar.router)
-app.include_router(log.router)
-app.include_router(grupos.router)
-app.include_router(membros_grupos.router)
-app.include_router(qr.router)
+app.include_router(contatos.router, prefix="/api")
+app.include_router(enviar.router, prefix="/api")
+app.include_router(log.router, prefix="/api")
+app.include_router(grupos.router, prefix="/api")
+app.include_router(membros_grupos.router, prefix="/api")
+app.include_router(qr.router, prefix="/api")
 
 # 🧱 Serve frontend buildado do Vite
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 dist_path = os.path.join(BASE_DIR, "ui", "dist")
 
-if not os.path.isdir(dist_path):
-    raise RuntimeError(f"❌ Diretório de build não encontrado: {dist_path}")
+# Monta os arquivos estáticos em uma rota específica
+app.mount("/assets", StaticFiles(directory=os.path.join(dist_path, "assets")), name="assets")
 
-app.mount("/", StaticFiles(directory=dist_path, html=True), name="static")
+# Rota raiz para servir o index.html
+@app.get("/{full_path:path}")
+async def catch_all(full_path: str):
+    return FileResponse(os.path.join(dist_path, "index.html"))
