@@ -1,8 +1,8 @@
-import { showLogin } from "./auth/login.js";
-import { showRegister } from "./auth/register.js";
-import { showRecover } from "./auth/recover.js";
-import { showQR } from "./auth/qr.js";
-import { showHome } from "./auth/home.js";
+import { showLogin } from "./pages/login.js";
+import { showRegister } from "./pages/register.js";
+import { showRecover } from "./pages/recover.js";
+import { showQR } from "./pages/qr.js";
+import { showHome } from "./pages/home.js";
 import { configurarEventosUI, carregarContatos, carregarGrupos } from "./ui.js";
 
 export function navegar(hash) {
