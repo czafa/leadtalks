@@ -19,7 +19,9 @@ export function showQR(container) {
   const statusMsg = document.getElementById("status");
 
   async function verificarSessaoAntes() {
-    const { data: { user } } = await window.supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await window.supabase.auth.getUser();
 
     if (!user) {
       window.location.href = "/#/login";
@@ -49,7 +51,7 @@ export function showQR(container) {
         return;
       }
 
-      const response = await fetch("http://136.248.124.114:3000/api/qr");
+      const response = await fetch("/api/qr");
       const data = await response.json();
 
       if (data.qr) {
@@ -68,13 +70,20 @@ export function showQR(container) {
   }
 
   async function monitorarSessao() {
-    const { data: { user } } = await window.supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await window.supabase.auth.getUser();
 
     window.supabase
       .channel("sessao-status")
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "sessao", filter: `usuario_id=eq.${user.id}` },
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "sessao",
+          filter: `usuario_id=eq.${user.id}`,
+        },
         (payload) => {
           if (payload.new.ativo) {
             window.location.href = "/#/home";
