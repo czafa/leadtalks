@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/api/qr",
-      "destination": "http://136.248.124.114:3000/api/qr"
+      "source": "/api/:path*",
+      "destination": "http://136.248.124.114/api/:path*"
     }
   ]
 }
