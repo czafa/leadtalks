@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://leadtalks.vercel.app/api/:path*"
+      "destination": "http://136.248.124.114:3000/api/:path*"
     }
   ]
 }
